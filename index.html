@@ -26,17 +26,32 @@
   const B = "https://script.google.com/macros/s/AKfycbwirN0z_C4VM0OlmfIcki0St9MQeNhkA1M_iNsmzV7G8Hrdg71TH-ohfqEgYMn7z0ci5w/exec";
 
   function C(r) {
-    const m = document.getElementById('mensaje');
-    m.style.color = "#333";
-    m.innerText = "Validando credenciales...";
-    const p = D(r.credential);
-    if (p && p.email) {
+  const m = document.getElementById('mensaje');
+  m.style.color = "#333";
+  m.innerText = "Validando credenciales...";
+
+  const p = D(r.credential);
+
+  if (p && p.email) {
+
+    // 🔥 MOSTRAR EL CORREO QUE GOOGLE ESTÁ DEVOLVIENDO
+    m.style.color = "#0066cc";
+    m.innerText = "Correo detectado: " + p.email;
+
+    // 🔥 También lo mostramos en consola para depuración
+    console.log("Correo detectado por GIS:", p.email);
+
+    // 🔥 Esperamos 1 segundo para que puedas verlo antes de redirigir
+    setTimeout(() => {
       window.location.href = B + "?email=" + encodeURIComponent(p.email);
-    } else {
-      m.style.color = "#d32f2f";
-      m.innerText = "Error: No se pudo obtener el correo.";
-    }
+    }, 1200);
+
+  } else {
+    m.style.color = "#d32f2f";
+    m.innerText = "Error: No se pudo obtener el correo.";
   }
+}
+
 
   function D(t) {
     try {
