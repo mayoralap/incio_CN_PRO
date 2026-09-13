@@ -3,79 +3,150 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acceso Autorizado</title>
+  <title>Columba Notebook – Verificación de Identidad</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
-    body{font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#f4f4f9}
-    .card{background:#fff;padding:30px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.1);text-align:center;width:350px;box-sizing:border-box}
-    #buttonDiv{display:flex;justify-content:center;width:100%;margin-top:20px}
-    #mensaje{margin-top:20px;font-weight:bold}
+    :root {
+      --color-primary: #1a73e8;
+      --color-primary-hover: #1557b0;
+      --color-success: #28a745;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding-top: 6vh;
+      min-height: 100vh;
+    }
+
+    .main-card {
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid #dadce0;
+      padding: 40px 32px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      box-sizing: border-box;
+      margin: 20px;
+    }
+
+    .logo-img {
+      width: 120px;
+      height: auto;
+      margin-bottom: 24px;
+      object-fit: contain;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      color: #202124;
+      margin: 0 0 10px 0;
+      font-weight: 600;
+    }
+
+    p {
+      color: #5f6368;
+      margin: 0 0 28px 0;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    #buttonDiv {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    #mensaje {
+      margin-top: 16px;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 480px) {
+      .main-card {
+        padding: 24px 20px;
+        margin: 16px;
+      }
+    }
   </style>
 </head>
 <body>
-<div class="card">
-  <h2>Validación de Acceso</h2>
-  <p>Inicia sesión con tu cuenta de Google para verificar tus privilegios.</p>
-  <div id="buttonDiv"></div>
-  <div id="mensaje"></div>
-</div>
 
-<script>
-  const A = "498552950849-4cj5lp97qrbqf63jc914ji96lq744m4t.apps.googleusercontent.com";
-  // Cambia esta URL por la URL de despliegue de tu Web App de Columba Notebook (Pro)
-  const B = "https://script.google.com/macros/s/AKfycbwirN0z_C4VM0OlmfIcki0St9MQeNhkA1M_iNsmzV7G8Hrdg71TH-ohfqEgYMn7z0ci5w/exec";
+  <div class="main-card">
+    <img src="https://drive.google.com/thumbnail?id=15hTMpm_5aNuU2QKTWZGdK2XKdtpEog4w" alt="Logo Columba Notebook" class="logo-img">
+    <h2>Verificación de Identidad</h2>
+    <p>Para verificar el estado de tu cuenta y mostrarte las opciones correspondientes, inicia sesión con Google.</p>
+    
+    <div id="buttonDiv"></div>
+    <div id="mensaje"></div>
+  </div>
 
-  function C(r) {
-    const m = document.getElementById('mensaje');
-    m.style.color = "#333";
-    m.innerText = "Validando credenciales...";
-    const p = D(r.credential);
-    if (p && p.email) {
-      window.location.href = B + "?email=" + encodeURIComponent(p.email);
-    } else {
-      m.style.color = "#d32f2f";
-      m.innerText = "Error: No se pudo obtener el correo.";
+  <script>
+    const A = "498552950849-4cj5lp97qrbqf63jc914ji96lq744m4t.apps.googleusercontent.com";
+    const B = "https://script.google.com/macros/s/AKfycbwirN0z_C4VM0OlmfIcki0St9MQeNhkA1M_iNsmzV7G8Hrdg71TH-ohfqEgYMn7z0ci5w/exec";
+
+    function C(r) {
+      const m = document.getElementById('mensaje');
+      m.style.color = "var(--color-primary)";
+      m.innerText = "Validando credenciales... redirigiendo.";
+      
+      const p = D(r.credential);
+      if (p && p.email) {
+        window.location.href = B + "?email=" + encodeURIComponent(p.email);
+      } else {
+        m.style.color = "#d32f2f";
+        m.innerText = "Error: No se pudo obtener el correo.";
+      }
     }
-  }
-  
-  function D(t) {
-    try {
-      const b = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(decodeURIComponent(atob(b).split('').map(c => '%' + ('0' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-    } catch (e) {
-      console.error("Error decodificando JWT", e);
-      return null;
-    }
-  }
-
-  function inicializarGIS() {
-    if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
-      setTimeout(inicializarGIS, 100);
-      return;
+    
+    function D(t) {
+      try {
+        const b = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        return JSON.parse(decodeURIComponent(atob(b).split('').map(c => '%' + ('0' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+      } catch (e) {
+        console.error("Error decodificando JWT", e);
+        return null;
+      }
     }
 
-    try {
-      google.accounts.id.initialize({
-        client_id: A,
-        callback: C,
-        context: "signin",
-        ux_mode: "popup",
-        auto_select: false,
-        use_fedcm_for_prompt: false // Desactiva por completo FedCM para prevenir el NotAllowedError
-      });
+    function inicializarGIS() {
+      if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+        setTimeout(inicializarGIS, 100);
+        return;
+      }
 
-      google.accounts.id.renderButton(
-        document.getElementById("buttonDiv"),
-        { theme: "outline", size: "large", text: "signin_with", shape: "rectangular", width: "290" }
-      );
+      try {
+        google.accounts.id.initialize({
+          client_id: A,
+          callback: C,
+          context: "signin",
+          ux_mode: "popup",
+          auto_select: false,
+          use_fedcm_for_prompt: false
+        });
 
-      // Eliminamos google.accounts.id.prompt() ya que intentaba invocar FedCM y causaba el error de consola.
-    } catch (err) {
-      console.error("Error al inicializar Google Identity:", err);
+        google.accounts.id.renderButton(
+          document.getElementById("buttonDiv"),
+          { theme: "outline", size: "large", text: "signin_with", shape: "rectangular", width: "290" }
+        );
+
+      } catch (err) {
+        console.error("Error al inicializar Google Identity:", err);
+      }
     }
-  }
 
-  window.addEventListener('load', inicializarGIS);
-</script>
+    window.addEventListener('load', inicializarGIS);
+  </script>
 </body>
 </html>
