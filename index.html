@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceso Autorizado</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body{font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#f4f4f9}
+    .card{background:#fff;padding:30px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.1);text-align:center;width:350px;box-sizing:border-box}
+    #buttonDiv{display:flex;justify-content:center;width:100%;margin-top:20px}
+    #mensaje{margin-top:20px;font-weight:bold}
+  </style>
+</head>
+<body>
+<div class="card">
+  <h2>Validación de Acceso</h2>
+  <p>Inicia sesión con tu cuenta de Google para verificar tus privilegios.</p>
+  <div id="buttonDiv"></div>
+  <div id="mensaje"></div>
+</div>
+
+<script>
+  const A = "498552950849-4cj5lp97qrbqf63jc914ji96lq744m4t.apps.googleusercontent.com";
+  // Cambia esta URL por la URL de despliegue de tu Web App de Columba Notebook (Pro)
+  const B = "https://script.google.com/macros/s/AKfycby-bp9_HvzMpDTODmLE5HISCHJLlZmX3_mXsOxsd8244LvVYCyvunrNoyV5831qp8E/exec";
+
+  function C(r) {
+    const m = document.getElementById('mensaje');
+    m.style.color = "#333";
+    m.innerText = "Validando credenciales...";
+    const p = D(r.credential);
+    if (p && p.email) {
+      window.location.href = B + "?email=" + encodeURIComponent(p.email);
+    } else {
+      m.style.color = "#d32f2f";
+      m.innerText = "Error: No se pudo obtener el correo.";
+    }
+  }
+
+  function D(t) {
+    try {
+      const b = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(decodeURIComponent(atob(b).split('').map(c => '%' + ('0' + c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+    } catch (e) {
+      console.error("Error decodificando JWT", e);
+      return null;
+    }
+  }
+
+  function inicializarGIS() {
+    if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+      setTimeout(inicializarGIS, 100);
+      return;
+    }
+
+    try {
+      google.accounts.id.initialize({
+        client_id: A,
+        callback: C,
+        context: "signin",
+        ux_mode: "popup",
+        auto_select: false,
+        use_fedcm_for_prompt: false // Desactiva por completo FedCM para prevenir el NotAllowedError
+      });
+
+      google.accounts.id.renderButton(
+        document.getElementById("buttonDiv"),
+        { theme: "outline", size: "large", text: "signin_with", shape: "rectangular", width: "290" }
+      );
+
+      // Eliminamos google.accounts.id.prompt() ya que intentaba invocar FedCM y causaba el error de consola.
+    } catch (err) {
+      console.error("Error al inicializar Google Identity:", err);
+    }
+  }
+
+  window.addEventListener('load', inicializarGIS);
+</script>
+</body>
+</html>
